@@ -6,5 +6,11 @@
   ],
   "devDependencies": {
     "lerna": "^3.22.1"
+  },
+  "scripts": {
+    "start": "lerna run start",
+    "dev": "lerna run dev",
+    "build": "lerna run build",
+    "publish": "lerna publish"
   }
 }
