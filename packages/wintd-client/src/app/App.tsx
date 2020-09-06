@@ -20,7 +20,7 @@ function App() {
                 {...props}
                 routes={[
                   { label: "Sign In", path: "/signin" },
-                  { label: "Sing Up", path: "/signup" },
+                  { label: "Sign Up", path: "/signup" },
                 ]}
                 defaultRoute='/signin'
               >
