@@ -1,19 +1,22 @@
 import React from "react";
 import { Container, Grid } from "@material-ui/core";
-import Table, {
-  rowsTest,
-  headCellsTest,
-} from "../../components/tables/EnhancedTable";
+import MaterialTableDemo from "../../components/tables/MaterialTable";
 
 function Dashboard() {
   return (
     <Container>
-      <Grid container>
+      <Grid
+        container
+        alignItems='center'
+        style={{
+          height: "100vh",
+        }}
+      >
         <Grid item xs={4}>
           left side
         </Grid>
         <Grid item xs={8}>
-          <Table headCells={headCellsTest} rows={rowsTest} />
+          <MaterialTableDemo />
         </Grid>
       </Grid>
     </Container>
