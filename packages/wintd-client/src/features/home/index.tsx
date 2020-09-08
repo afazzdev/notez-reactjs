@@ -1,5 +1,5 @@
 import React from "react";
-import { Container, Grid } from "@material-ui/core";
+import { Container, Grid, Typography } from "@material-ui/core";
 import { TabContext, TabList, TabPanel } from "@material-ui/lab";
 
 import { useTabsWithRouter } from "../../hooks/useTabsWithRouter";
@@ -29,6 +29,9 @@ function Home({
         style={{ height: "100vh" }}
       >
         <Grid item>
+          <Typography variant='h2' style={{ marginBottom: "3rem" }}>
+            Practical <strong>PERN</strong> stack + <strong>Typescript</strong>
+          </Typography>
           <TabContext value={tabValue}>
             <TabList aria-label='auth' centered>
               {routes.map((el) => (

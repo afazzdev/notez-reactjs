@@ -9,6 +9,7 @@ import {
 } from "@material-ui/core";
 import Edit from "@material-ui/icons/Edit";
 import DashboardIcon from "@material-ui/icons/Dashboard";
+import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 import { useHistory, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/root.reducer";
@@ -93,6 +94,7 @@ function LeftSide() {
                 onClick={() => {
                   history.push("/dashboard/setting");
                 }}
+                title='Edit'
               >
                 <Edit />
               </IconButton>
@@ -105,6 +107,7 @@ function LeftSide() {
                 position: "absolute",
                 right: -16,
               }}
+              title='Dashboard'
               onClick={() => {
                 history.push("/dashboard");
               }}
@@ -113,6 +116,14 @@ function LeftSide() {
             </IconButton>
           )}
         </div>
+        <IconButton
+          title='Log out'
+          onClick={() => {
+            history.push("/");
+          }}
+        >
+          <ExitToAppIcon color='secondary' />
+        </IconButton>
       </Grid>
     </Grid>
   );

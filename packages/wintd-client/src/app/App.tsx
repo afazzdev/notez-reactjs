@@ -26,7 +26,7 @@ function App() {
                     { label: "Sign In", path: "/signin" },
                     { label: "Sign Up", path: "/signup" },
                   ]}
-                  defaultRoute='/signin'
+                  defaultRoute='/'
                 >
                   <Route
                     path='/signin'
