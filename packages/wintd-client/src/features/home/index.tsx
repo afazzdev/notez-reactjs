@@ -4,6 +4,7 @@ import { TabContext, TabList, TabPanel } from "@material-ui/lab";
 
 import { useTabsWithRouter } from "../../hooks/useTabsWithRouter";
 import { TabLink } from "../../components/tabs";
+import Footer from "../../components/footer";
 
 export interface IAuthRoute {
   routes: { path: string; label: string }[];
@@ -49,6 +50,7 @@ function Home({
             })}
           </TabContext>
         </Grid>
+        <Footer />
       </Grid>
     </Container>
   );
