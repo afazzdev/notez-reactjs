@@ -1,5 +1,5 @@
 import React, { forwardRef } from "react";
-import MaterialTable, { Column, Icons } from "material-table";
+import MaterialTable, { Icons } from "material-table";
 
 import AddBox from "@material-ui/icons/AddBox";
 import ArrowDownward from "@material-ui/icons/ArrowDownward";
@@ -16,18 +16,8 @@ import Remove from "@material-ui/icons/Remove";
 import SaveAlt from "@material-ui/icons/SaveAlt";
 import Search from "@material-ui/icons/Search";
 import ViewColumn from "@material-ui/icons/ViewColumn";
-
-interface Row {
-  name: string;
-  surname: string;
-  birthYear: number;
-  birthCity: number;
-}
-
-interface TableState {
-  columns: Array<Column<Row>>;
-  data: Row[];
-}
+import { useSelector } from "react-redux";
+import { RootState } from "../../app/root.reducer";
 
 const tableIcons: Icons = {
   Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
@@ -54,27 +44,7 @@ const tableIcons: Icons = {
 };
 
 export default function MaterialTableDemo() {
-  const [state, setState] = React.useState<TableState>({
-    columns: [
-      { title: "Name", field: "name" },
-      { title: "Surname", field: "surname" },
-      { title: "Birth Year", field: "birthYear", type: "numeric" },
-      {
-        title: "Birth Place",
-        field: "birthCity",
-        lookup: { 34: "İstanbul", 63: "Şanlıurfa" },
-      },
-    ],
-    data: [
-      { name: "Mehmet", surname: "Baran", birthYear: 1987, birthCity: 63 },
-      {
-        name: "Zerya Betül",
-        surname: "Baran",
-        birthYear: 2017,
-        birthCity: 34,
-      },
-    ],
-  });
+  const state = useSelector((state: RootState) => state.dashboard.tableData);
 
   return (
     <MaterialTable
@@ -82,16 +52,17 @@ export default function MaterialTableDemo() {
       icons={tableIcons}
       columns={state.columns}
       data={state.data}
+      style={{ boxShadow: "none", border: "2px solid #f6f6f6" }}
       editable={{
         onRowAdd: (newData) =>
           new Promise((resolve) => {
             setTimeout(() => {
               resolve();
-              setState((prevState) => {
-                const data = [...prevState.data];
-                data.push(newData);
-                return { ...prevState, data };
-              });
+              // setState((prevState) => {
+              //   const data = [...prevState.data];
+              //   data.push(newData);
+              //   return { ...prevState, data };
+              // });
             }, 600);
           }),
         onRowUpdate: (newData, oldData) =>
@@ -99,11 +70,11 @@ export default function MaterialTableDemo() {
             setTimeout(() => {
               resolve();
               if (oldData) {
-                setState((prevState) => {
-                  const data = [...prevState.data];
-                  data[data.indexOf(oldData)] = newData;
-                  return { ...prevState, data };
-                });
+                // setState((prevState) => {
+                //   const data = [...prevState.data];
+                //   data[data.indexOf(oldData)] = newData;
+                //   return { ...prevState, data };
+                // });
               }
             }, 600);
           }),
@@ -111,11 +82,11 @@ export default function MaterialTableDemo() {
           new Promise((resolve) => {
             setTimeout(() => {
               resolve();
-              setState((prevState) => {
-                const data = [...prevState.data];
-                data.splice(data.indexOf(oldData), 1);
-                return { ...prevState, data };
-              });
+              // setState((prevState) => {
+              //   const data = [...prevState.data];
+              //   data.splice(data.indexOf(oldData), 1);
+              //   return { ...prevState, data };
+              // });
             }, 600);
           }),
       }}

@@ -1,6 +1,12 @@
-import React from "react";
-import { Container, Grid } from "@material-ui/core";
-import MaterialTableDemo from "../../components/tables/MaterialTable";
+import React, { Suspense } from "react";
+import { Container, Grid, CircularProgress } from "@material-ui/core";
+import { Switch, Route } from "react-router-dom";
+import LeftSide from "./LeftSide";
+
+const MaterialTableDemo = React.lazy(
+  () => import("../../components/tables/MaterialTable")
+);
+const Setting = React.lazy(() => import("../settings/Setting"));
 
 function Dashboard() {
   return (
@@ -13,10 +19,21 @@ function Dashboard() {
         }}
       >
         <Grid item xs={4}>
-          left side
+          <LeftSide />
         </Grid>
         <Grid item xs={8}>
-          <MaterialTableDemo />
+          <Suspense
+            fallback={
+              <div style={{ textAlign: "center" }}>
+                <CircularProgress size={80} />
+              </div>
+            }
+          >
+            <Switch>
+              <Route path='/dashboard/setting' component={Setting} />
+              <Route path='/dashboard' component={MaterialTableDemo} />
+            </Switch>
+          </Suspense>
         </Grid>
       </Grid>
     </Container>
