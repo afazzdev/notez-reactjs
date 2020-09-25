@@ -15,10 +15,10 @@ function App() {
       <MuiProvider>
         <BrowserRouter>
           <Switch>
-            <Route path='/dashboard' component={Dashboard} />
+            <Route path="/dashboard" component={Dashboard} />
 
             <Route
-              path='/'
+              path="/"
               render={(props) => (
                 <Home
                   {...props}
@@ -26,18 +26,18 @@ function App() {
                     { label: "Sign In", path: "/signin" },
                     { label: "Sign Up", path: "/signup" },
                   ]}
-                  defaultRoute='/'
+                  defaultRoute="/"
                 >
                   <Route
-                    path='/signin'
+                    path="/signin"
                     render={(props) => (
-                      <Auth componentFor='Signin' {...props} />
+                      <Auth componentFor="signIn" {...props} />
                     )}
                   />
                   <Route
-                    path='/signup'
+                    path="/signup"
                     render={(props) => (
-                      <Auth componentFor='Signup' {...props} />
+                      <Auth componentFor="signUp" {...props} />
                     )}
                   />
                 </Home>
