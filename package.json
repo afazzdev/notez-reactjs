@@ -1,5 +1,5 @@
 {
-  "name": "brainz",
+  "name": "notez-client",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -29,6 +29,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
+    "dev": "CI=true react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
