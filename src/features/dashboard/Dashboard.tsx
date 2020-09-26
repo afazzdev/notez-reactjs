@@ -3,9 +3,9 @@ import { Container, Grid, CircularProgress } from "@material-ui/core";
 import { Switch, Route } from "react-router-dom";
 import LeftSide from "./LeftSide";
 
-const MaterialTableDemo = React.lazy(
-  () => import("../../components/tables/MaterialTable")
-);
+// const MaterialTableDemo = React.lazy(
+//   () => import("../../components/tables/MaterialTable"),
+// );
 const Setting = React.lazy(() => import("../settings/Setting"));
 
 function Dashboard() {
@@ -13,7 +13,7 @@ function Dashboard() {
     <Container>
       <Grid
         container
-        alignItems='center'
+        alignItems="center"
         style={{
           height: "100vh",
         }}
@@ -30,8 +30,8 @@ function Dashboard() {
             }
           >
             <Switch>
-              <Route path='/dashboard/setting' component={Setting} />
-              <Route path='/dashboard' component={MaterialTableDemo} />
+              <Route path="/@:username/setting" component={Setting} />
+              {/* <Route exact path="/@:username" component={MaterialTableDemo} /> */}
             </Switch>
           </Suspense>
         </Grid>

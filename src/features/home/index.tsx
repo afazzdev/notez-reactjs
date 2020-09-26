@@ -18,23 +18,39 @@ function Home({
 }: { children: React.ReactNode } & IAuthRoute) {
   const tabValue = useTabsWithRouter(
     [...routes.map((el) => el.path)],
-    defaultRoute
+    defaultRoute,
   );
 
   return (
     <Container>
       <Grid
         container
-        justify='center'
-        alignItems='center'
+        justify="center"
+        alignItems="center"
         style={{ height: "100vh" }}
       >
         <Grid item>
-          <Typography variant='h2' style={{ marginBottom: "3rem" }}>
-            Practical <strong>PERN</strong> stack + <strong>Typescript</strong>
+          <Typography
+            variant="h2"
+            style={{
+              textAlign: "center",
+              fontWeight: 900,
+            }}
+          >
+            NOTEZ
+          </Typography>
+          <Typography
+            variant="caption"
+            style={{
+              marginBottom: "3rem",
+              textAlign: "center",
+              display: "block",
+            }}
+          >
+            Just a simple note
           </Typography>
           <TabContext value={tabValue}>
-            <TabList aria-label='auth' centered>
+            <TabList aria-label="auth" centered>
               {routes.map((el) => (
                 <TabLink
                   key={el.path + el.label}

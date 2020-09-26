@@ -44,8 +44,8 @@ function Auth({
         password,
         username,
       }),
-    ).then(() => {
-      history.push("/dashboard");
+    ).then((res) => {
+      history.push(`/@${res.data?.username}`);
     });
   };
 

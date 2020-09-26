@@ -5,9 +5,10 @@ import { AppThunk } from "../../app/store";
 interface IState {
   isLogin: boolean;
   isLoading: boolean;
-  token: Pick<IDataFromApi, "token"> | null;
+  token: string | null;
   message: Pick<IDataFromApi, "message"> | null;
   user: IUser & { photo: string };
+  [key: string]: any;
 }
 
 const initialState: IState = {
@@ -16,8 +17,8 @@ const initialState: IState = {
   token: null,
   message: null,
   user: {
-    username: "placeholder",
-    photo: "placeholder",
+    username: "",
+    photo: "",
   },
 };
 
@@ -43,6 +44,15 @@ const authSlice = createSlice({
     editUser: (state, { payload }) => {
       state.user.username = payload.username;
     },
+    logOut(state: IState, { payload: history }) {
+      localStorage.removeItem("token");
+      // state = initialState;
+      Object.keys(state).forEach((key) => {
+        state[key] = initialState[key];
+      });
+
+      history.push("/");
+    },
   },
 });
 
@@ -53,6 +63,7 @@ export const {
   setUser,
   setToken,
   setErrorMessage,
+  logOut,
 } = authSlice.actions;
 
 export const signUp = (data: IUser): AppThunk<Promise<IDataFromApi>> => async (
@@ -82,7 +93,6 @@ export const signUp = (data: IUser): AppThunk<Promise<IDataFromApi>> => async (
       setTimeout(() => {
         dispatch(setErrorMessage(""));
       }, 5000);
-
       // returning the error value to next catch
       return error.response;
     } else {
@@ -132,6 +142,28 @@ export const signIn = (data: IUser): AppThunk<Promise<IDataFromApi>> => async (
   } finally {
     // Change app state loading to false after promise resolved or rejected
     dispatch(setLoading(false));
+  }
+};
+
+export const getUserAsync = (): AppThunk => async (dispatch) => {
+  const token = localStorage.getItem("token");
+
+  if (token) {
+    dispatch(setLoading(true));
+    try {
+      const user = await auth.getUser(token);
+      localStorage.setItem("token", user.token!);
+      dispatch(setToken(user.token));
+      dispatch(setUser(user.data));
+      dispatch(setLogin(true));
+    } catch (error) {
+      if (error.response) {
+        if (error.response.status === 401) localStorage.removeItem("token");
+        setErrorMessage(error.response.message);
+      }
+    } finally {
+      dispatch(setLoading(false));
+    }
   }
 };
 

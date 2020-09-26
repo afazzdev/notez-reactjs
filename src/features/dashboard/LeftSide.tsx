@@ -11,11 +11,14 @@ import Edit from "@material-ui/icons/Edit";
 import DashboardIcon from "@material-ui/icons/Dashboard";
 import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 import { useHistory, useLocation } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../app/root.reducer";
+import { logOut } from "../auth/auth.slice";
+import { AppDispatchType } from "../../app/store";
 
 function LeftSide() {
-  const user = useSelector((state: RootState) => state.auth.user);
+  const { user } = useSelector((state: RootState) => state.auth);
+  const dispatch = useDispatch<AppDispatchType>();
   const [hover, setHover] = useState(false);
   const [hoverPic, setHoverPic] = useState(false);
   const history = useHistory();
@@ -25,8 +28,8 @@ function LeftSide() {
     <Grid
       container
       style={{ height: "100vh" }}
-      alignItems='center'
-      justify='center'
+      alignItems="center"
+      justify="center"
     >
       <Grid
         item
@@ -35,7 +38,7 @@ function LeftSide() {
         }}
       >
         <Badge
-          overlap='circle'
+          overlap="circle"
           anchorOrigin={{
             vertical: "bottom",
             horizontal: "right",
@@ -77,13 +80,13 @@ function LeftSide() {
           onMouseLeave={() => setHover(false)}
         >
           <Typography
-            variant='h6'
+            variant="h6"
             style={{ margin: "1rem 0" }}
-            onClick={() => history.push("/dashboard")}
+            onClick={() => history.push(`/@${user.username}`)}
           >
             {user.username}
           </Typography>
-          {location.pathname === "/dashboard" && (
+          {location.pathname === `/@${user.username}` && (
             <Fade in={hover}>
               <IconButton
                 style={{
@@ -92,24 +95,24 @@ function LeftSide() {
                   right: -16,
                 }}
                 onClick={() => {
-                  history.push("/dashboard/setting");
+                  history.push(`/@${user.username}/setting`);
                 }}
-                title='Edit'
+                title="Edit"
               >
                 <Edit />
               </IconButton>
             </Fade>
           )}
-          {location.pathname === "/dashboard/setting" && (
+          {location.pathname === `/@${user.username}/setting` && (
             <IconButton
               style={{
                 marginLeft: "1rem",
                 position: "absolute",
                 right: -16,
               }}
-              title='Dashboard'
+              title="Dashboard"
               onClick={() => {
-                history.push("/dashboard");
+                history.push(`/@${user.username}`);
               }}
             >
               <DashboardIcon />
@@ -117,12 +120,12 @@ function LeftSide() {
           )}
         </div>
         <IconButton
-          title='Log out'
+          title="Log out"
           onClick={() => {
-            history.push("/");
+            dispatch(logOut(history));
           }}
         >
-          <ExitToAppIcon color='secondary' />
+          <ExitToAppIcon color="secondary" />
         </IconButton>
       </Grid>
     </Grid>
