@@ -3,6 +3,7 @@ import auth, { IDataFromApi, IUser } from "../../api/auth";
 import { AppThunk } from "../../app/store";
 
 interface IState {
+  initLoading: boolean;
   isLogin: boolean;
   isLoading: boolean;
   token: string | null;
@@ -12,6 +13,7 @@ interface IState {
 }
 
 const initialState: IState = {
+  initLoading: false,
   isLogin: false,
   isLoading: false,
   token: null,
@@ -26,6 +28,9 @@ const authSlice = createSlice({
   name: "auth",
   initialState: initialState as IState,
   reducers: {
+    setInitLoading(state, { payload }) {
+      state.initLoading = payload;
+    },
     setLogin(state, { payload }) {
       state.isLogin = payload;
     },
@@ -44,19 +49,18 @@ const authSlice = createSlice({
     editUser: (state, { payload }) => {
       state.user.username = payload.username;
     },
-    logOut(state: IState, { payload: history }) {
+    logOut(state: IState) {
       localStorage.removeItem("token");
       // state = initialState;
       Object.keys(state).forEach((key) => {
         state[key] = initialState[key];
       });
-
-      history.push("/");
     },
   },
 });
 
 export const {
+  setInitLoading,
   setLogin,
   editUser,
   setLoading,
@@ -66,10 +70,13 @@ export const {
   logOut,
 } = authSlice.actions;
 
+var deleteErrorMessage: any = null;
+
 export const signUp = (data: IUser): AppThunk<Promise<IDataFromApi>> => async (
   dispatch,
 ) => {
   // Set app to loading state
+  clearTimeout(deleteErrorMessage);
   dispatch(setLoading(true));
   try {
     // Try Authentication process
@@ -90,7 +97,7 @@ export const signUp = (data: IUser): AppThunk<Promise<IDataFromApi>> => async (
       // Set state.message to error response message
       dispatch(setErrorMessage(error.response.data.message));
       // Delete the message after some time
-      setTimeout(() => {
+      deleteErrorMessage = setTimeout(() => {
         dispatch(setErrorMessage(""));
       }, 5000);
       // returning the error value to next catch
@@ -101,14 +108,17 @@ export const signUp = (data: IUser): AppThunk<Promise<IDataFromApi>> => async (
     }
   } finally {
     // Change app state loading to false after promise resolved or rejected
-    dispatch(setLoading(false));
+    // dispatch(setLoading(false));
   }
 };
 
+// @ts-ignore
 export const signIn = (data: IUser): AppThunk<Promise<IDataFromApi>> => async (
+  // @ts-ignore
   dispatch,
 ) => {
-  // Set app to loading state
+  // // Set app to loading state
+  clearTimeout(deleteErrorMessage);
   dispatch(setLoading(true));
   try {
     // Try Authentication process
@@ -129,30 +139,28 @@ export const signIn = (data: IUser): AppThunk<Promise<IDataFromApi>> => async (
       // Set state.message to error response message
       dispatch(setErrorMessage(error.response.data.message));
       // Delete the message after some time
-      setTimeout(() => {
+      deleteErrorMessage = setTimeout(() => {
         dispatch(setErrorMessage(""));
       }, 5000);
-
       // returning the error value to next catch
-      return error.response;
+      throw error.response;
     } else {
       // otherwise return generic error
-      return error;
+      throw error;
     }
   } finally {
-    // Change app state loading to false after promise resolved or rejected
+    //   // Change app state loading to false after promise resolved or rejected
     dispatch(setLoading(false));
   }
 };
 
 export const getUserAsync = (): AppThunk => async (dispatch) => {
   const token = localStorage.getItem("token");
+  dispatch(setInitLoading(true));
 
   if (token) {
-    dispatch(setLoading(true));
     try {
       const user = await auth.getUser(token);
-      localStorage.setItem("token", user.token!);
       dispatch(setToken(user.token));
       dispatch(setUser(user.data));
       dispatch(setLogin(true));
@@ -161,10 +169,9 @@ export const getUserAsync = (): AppThunk => async (dispatch) => {
         if (error.response.status === 401) localStorage.removeItem("token");
         setErrorMessage(error.response.message);
       }
-    } finally {
-      dispatch(setLoading(false));
     }
   }
+  dispatch(setInitLoading(false));
 };
 
 export default authSlice.reducer;
