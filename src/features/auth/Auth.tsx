@@ -1,7 +1,6 @@
-import React, { useState } from "react";
-import { RouteChildrenProps } from "react-router-dom";
+import React from "react";
+import { RouteChildrenProps, Prompt } from "react-router-dom";
 import {
-  TextField,
   createStyles,
   makeStyles,
   Theme,
@@ -9,8 +8,11 @@ import {
   CircularProgress,
   FormHelperText,
 } from "@material-ui/core";
-import * as authActionAsync from "./auth.slice";
+import { TextField } from "formik-material-ui";
+import { Field, Form, Formik } from "formik";
 import { useDispatch, useSelector } from "react-redux";
+
+import * as authActionAsync from "./auth.slice";
 import { RootState } from "../../app/root.reducer";
 import { AppDispatchType } from "../../app/store";
 
@@ -28,70 +30,140 @@ const useStyles = makeStyles((theme: Theme) =>
 
 type IComponentFor = "signIn" | "signUp";
 
+const SubmitButton = React.memo(function ({
+  buttonIsDisabled,
+  componentFor,
+}: {
+  buttonIsDisabled: boolean;
+  componentFor: string;
+}) {
+  const isLoading = useSelector((state: RootState) => state.auth.isLoading);
+
+  console.log("Submit button re-rendered");
+  return (
+    <Button
+      type="submit"
+      fullWidth
+      variant="contained"
+      color="secondary"
+      disabled={buttonIsDisabled || isLoading}
+    >
+      {isLoading ? <CircularProgress size={20} /> : componentFor}
+    </Button>
+  );
+});
+
 function Auth({
   componentFor,
   history,
 }: { componentFor: IComponentFor } & RouteChildrenProps) {
   const classes = useStyles();
-  const [username, setUsername] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const { isLoading, message } = useSelector((state: RootState) => state.auth);
+  const message = useSelector((state: RootState) => state.auth.message);
   const dispatch = useDispatch<AppDispatchType>();
 
-  const handleSubmit = async () => {
-    await dispatch(
-      authActionAsync[componentFor]({
-        password,
-        username,
-      }),
-    ).then((res) => {
-      history.push(`/@${res.data?.username}`);
-    });
-  };
-
+  console.log("auth-render");
   return (
-    <form
-      className={classes.root}
-      onSubmit={(e) => {
-        e.preventDefault();
-        handleSubmit();
+    <Formik
+      initialValues={{
+        username: "",
+        password: "",
       }}
+      onSubmit={(values, { setSubmitting }) => {
+        dispatch(authActionAsync[componentFor](values))
+          .then((res) => {
+            console.log("success");
+            history.push(`/@${res.data?.username}`);
+          })
+          .catch((err) => {
+            console.log(`error: ${err}`);
+            setSubmitting(false);
+          });
+      }}
+      validate={(values) => {
+        const errors: Partial<typeof values> = {};
+
+        if (!/^((\w|\d){8,})$/.test(values.username)) {
+          errors.username = "Username minimal 8 karakter";
+        }
+        if (!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(values.password)) {
+          errors.password =
+            "Password harus mengandung huruf, angka dan minimal 8 karakter";
+        }
+
+        return errors;
+      }}
+      validateOnChange
+      initialTouched={{ username: false, password: false }}
     >
-      <TextField
-        label="Username"
-        type="text"
-        fullWidth
-        value={username}
-        color="secondary"
-        error={username.length <= 8 && username.length > 0}
-        helperText={
-          username.length <= 8 && username.length > 0 && "Minimal 8 karakter"
-        }
-        onChange={(e) => setUsername(e.currentTarget.value)}
-      />
-      <TextField
-        label="Password"
-        type="password"
-        fullWidth
-        value={password}
-        color="secondary"
-        error={password.length <= 8 && password.length > 0}
-        helperText={
-          password.length <= 8 && password.length > 0 && "Minimal 8 karakter"
-        }
-        onChange={(e) => setPassword(e.currentTarget.value)}
-      />
-      {message && <FormHelperText error={!!message}>{message}</FormHelperText>}
-      <Button
-        type="submit"
-        fullWidth
-        variant="contained"
-        color="secondary"
-        disabled={isLoading || username.length <= 8 || password.length < 8}
-      >
-        {isLoading ? <CircularProgress size={20} /> : componentFor}
-      </Button>
-    </form>
+      {({
+        isSubmitting,
+        submitForm,
+        isValid,
+        touched,
+        dirty,
+        setFieldTouched,
+        values,
+      }) => (
+        <Form
+          className={classes.root}
+          onSubmit={(e) => {
+            e.preventDefault();
+            submitForm();
+          }}
+        >
+          <Prompt
+            when={Object.values(values).some(Boolean)}
+            message={(location) =>
+              `Apakah anda ingin meninggalkan page ${location.pathname}?`
+            }
+          />
+          <Field
+            fullWidth
+            component={TextField}
+            type="text"
+            label="Username"
+            name="username"
+            color="secondary"
+            variant="outlined"
+            onKeyUp={() => {
+              if (!touched.username) {
+                console.log("username field touched", touched.username);
+                setFieldTouched("username", true);
+              }
+            }}
+          />
+          <Field
+            fullWidth
+            component={TextField}
+            type="password"
+            label="Password"
+            name="password"
+            color="secondary"
+            variant="outlined"
+            onKeyUp={() => {
+              if (!touched.password) {
+                console.log("password field touched", touched.password);
+                setFieldTouched("password", true);
+              }
+            }}
+          />
+
+          {message && (
+            <FormHelperText error={!!message}>{message}</FormHelperText>
+          )}
+          <SubmitButton
+            buttonIsDisabled={
+              !isValid ||
+              isSubmitting ||
+              !touched.username ||
+              !touched.password ||
+              !dirty
+            }
+            componentFor={componentFor}
+          />
+        </Form>
+      )}
+    </Formik>
   );
 }
 
