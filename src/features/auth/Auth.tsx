@@ -45,7 +45,7 @@ const SubmitButton = React.memo(function ({
       type="submit"
       fullWidth
       variant="contained"
-      color="secondary"
+      color="primary"
       disabled={buttonIsDisabled || isLoading}
     >
       {isLoading ? <CircularProgress size={20} /> : componentFor}
@@ -123,7 +123,7 @@ function Auth({
             type="text"
             label="Username"
             name="username"
-            color="secondary"
+            color="primary"
             variant="outlined"
             onKeyUp={() => {
               if (!touched.username) {
@@ -138,7 +138,7 @@ function Auth({
             type="password"
             label="Password"
             name="password"
-            color="secondary"
+            color="primary"
             variant="outlined"
             onKeyUp={() => {
               if (!touched.password) {

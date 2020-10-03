@@ -50,7 +50,7 @@ function Home({
             Just a simple note
           </Typography>
           <TabContext value={tabValue}>
-            <TabList aria-label="auth" centered>
+            <TabList aria-label="auth" centered indicatorColor="primary">
               {routes.map((el) => (
                 <TabLink
                   key={el.path + el.label}
