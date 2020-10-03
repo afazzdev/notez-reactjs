@@ -1,42 +1,48 @@
-import React, { Suspense } from "react";
-import { Container, Grid, CircularProgress } from "@material-ui/core";
-import { Switch, Route } from "react-router-dom";
-import LeftSide from "./LeftSide";
+import React from "react";
+import {
+  Container,
+  Grid,
+  AppBar,
+  Toolbar,
+  Typography,
+  makeStyles,
+  createStyles,
+  Theme,
+} from "@material-ui/core";
+import Sidebar from "./Sidebar";
+import RootContainer from "../../components/container/RootContainer";
 
-// const MaterialTableDemo = React.lazy(
-//   () => import("../../components/tables/MaterialTable"),
-// );
-const Setting = React.lazy(() => import("../settings/Setting"));
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    container: {
+      marginTop: "1rem",
+    },
+  }),
+);
 
 function Dashboard() {
+  const classes = useStyles();
+
   return (
-    <Container>
-      <Grid
-        container
-        alignItems="center"
-        style={{
-          height: "100vh",
-        }}
-      >
-        <Grid item xs={4}>
-          <LeftSide />
+    <RootContainer>
+      <AppBar position="static" color="inherit" elevation={0}>
+        <Toolbar>
+          <Container>
+            <Typography variant="h6">NOTEZ</Typography>
+          </Container>
+        </Toolbar>
+      </AppBar>
+      <Container className={classes.container}>
+        <Grid container>
+          <Grid item xs={3}>
+            <Sidebar />
+          </Grid>
+          <Grid item xs={9}>
+            Content
+          </Grid>
         </Grid>
-        <Grid item xs={8}>
-          <Suspense
-            fallback={
-              <div style={{ textAlign: "center" }}>
-                <CircularProgress size={80} />
-              </div>
-            }
-          >
-            <Switch>
-              <Route path="/@:username/setting" component={Setting} />
-              {/* <Route exact path="/@:username" component={MaterialTableDemo} /> */}
-            </Switch>
-          </Suspense>
-        </Grid>
-      </Grid>
-    </Container>
+      </Container>
+    </RootContainer>
   );
 }
 
