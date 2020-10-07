@@ -39,11 +39,12 @@ interface IBaseListButton {
   onClick?: TOnClick1;
 }
 
-export type IListButtonData = Pick<IBaseListButton, "icon" | "label">[];
+export type IListButtonData = Pick<IBaseListButton, "label">[];
 
-interface IListButtonArray extends Omit<IBaseListButton, "onClick"> {
+interface IListButtonArray extends Omit<IBaseListButton, "onClick" | "icon"> {
+  icon: { parent: SvgIconComponent; child: SvgIconComponent };
   loading?: boolean;
-  data?: IListButtonData;
+  data: IListButtonData;
   error?: boolean;
   onError?: (event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => void;
   onClick: TOnClick2;
@@ -55,10 +56,17 @@ function ListButton(props: IListButton) {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
 
-  const { icon, label, child, onClick, selected } = props;
-
   if ("data" in props && Array.isArray(props.data)) {
-    const { data, loading, error, onError } = props;
+    const {
+      data,
+      loading,
+      error,
+      onError,
+      icon,
+      label,
+      onClick,
+    } = props as IListButtonArray;
+
     const handleClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
       setOpen(!open);
       onClick!(e, label);
@@ -67,7 +75,7 @@ function ListButton(props: IListButton) {
     return (
       <>
         <ListItem button onClick={handleClick} disableRipple>
-          <ListItemIcon>{React.createElement(icon)}</ListItemIcon>
+          <ListItemIcon>{React.createElement(icon.parent)}</ListItemIcon>
           <ListItemText primary={label} />
           {error ? (
             <IconButton
@@ -93,9 +101,10 @@ function ListButton(props: IListButton) {
         </ListItem>
         <Collapse in={open} timeout="auto" unmountOnExit>
           <List component="div" disablePadding>
-            {data.map((datum) =>
+            {data?.map((datum) =>
               React.createElement(ListButton, {
                 ...datum,
+                icon: icon.child,
                 child: true,
                 key: datum.label,
                 onClick: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) =>
@@ -108,11 +117,13 @@ function ListButton(props: IListButton) {
     );
   }
 
+  const { icon, label, child, onClick, selected } = props as IBaseListButton;
+
   return (
     <ListItem
       button
       disableRipple
-      onClick={onClick as TOnClick1}
+      onClick={onClick}
       className={clsx({ [classes.nested]: child })}
       selected={selected}
     >

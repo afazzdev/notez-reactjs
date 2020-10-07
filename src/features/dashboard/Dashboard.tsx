@@ -1,44 +1,57 @@
-import React from "react";
+import React, { useRef, useEffect, useState } from "react";
 import {
   Container,
   Grid,
-  AppBar,
-  Toolbar,
-  Typography,
   makeStyles,
   createStyles,
   Theme,
 } from "@material-ui/core";
 import Sidebar from "./Sidebar";
 import RootContainer from "../../components/container/RootContainer";
+import Header from "../header";
+import { DashboardContent } from "../contents";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     container: {
-      marginTop: "1rem",
+      overflow: "hidden",
     },
   }),
 );
 
 function Dashboard() {
+  const contentParentRef = useRef<any | null>(null);
+  const [height, setheight] = useState(0);
+
+  useEffect(() => {
+    if (!!contentParentRef) {
+      setheight(contentParentRef.current?.clientHeight!);
+    }
+  }, [contentParentRef]);
+
   const classes = useStyles();
 
   return (
     <RootContainer>
-      <AppBar position="static" color="inherit" elevation={0}>
-        <Toolbar>
-          <Container>
-            <Typography variant="h6">NOTEZ</Typography>
-          </Container>
-        </Toolbar>
-      </AppBar>
+      <Header />
       <Container className={classes.container}>
-        <Grid container>
-          <Grid item xs={3}>
-            <Sidebar />
+        <Grid
+          container
+          style={{ height: "100%", overflow: "hidden" }}
+          innerRef={contentParentRef}
+        >
+          <Grid
+            item
+            xs={3}
+            style={{
+              overflow: "hidden",
+              height: "100%",
+            }}
+          >
+            <Sidebar maxHeight={height} />
           </Grid>
-          <Grid item xs={9}>
-            Content
+          <Grid item xs={9} style={{ overflow: "hidden" }}>
+            <DashboardContent maxHeight={height} />
           </Grid>
         </Grid>
       </Container>

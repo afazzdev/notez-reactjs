@@ -7,7 +7,55 @@ import MoreIcon from "@material-ui/icons/More";
 import ListButton, { IListButtonData } from "../../components/list/ListButton";
 import { isEqual } from "lodash";
 
-export default function NestedList() {
+const data = [
+  {
+    label: "Some tag name",
+  },
+  {
+    label: "Some tag name",
+  },
+  {
+    label: "Some tag name",
+  },
+  {
+    label: "Some tag name",
+  },
+  {
+    label: "Some tag name",
+  },
+  {
+    label: "Some tag name",
+  },
+  {
+    label: "Some tag name",
+  },
+  {
+    label: "Some tag name",
+  },
+  {
+    label: "Some tag name",
+  },
+  {
+    label: "Some tag name",
+  },
+  {
+    label: "Some tag name",
+  },
+  {
+    label: "Some tag name",
+  },
+  {
+    label: "Some tag name",
+  },
+  {
+    label: "Some tag name",
+  },
+  {
+    label: "Some tag name",
+  },
+];
+
+function Sidebar({ maxHeight }: { maxHeight: number }) {
   const [state, setState] = useState<IListButtonData>([]);
   const [loading, setLoading] = useState(false);
 
@@ -18,12 +66,7 @@ export default function NestedList() {
     console.log(loading);
     new Promise((resolve) => {
       setTimeout(() => {
-        resolve([
-          {
-            icon: LabelIcon,
-            label: "Some tag name",
-          },
-        ]);
+        resolve(data);
       }, 5000);
     })
       .then((res) => {
@@ -38,13 +81,23 @@ export default function NestedList() {
   };
 
   return (
-    <List component="nav">
+    <List
+      component="nav"
+      style={{
+        overflow: "auto",
+        maxHeight,
+      }}
+    >
       <ListButton icon={NotesIcon} label="Notes" />
       <ListButton icon={StarBorderIcon} label="Favorites" />
       <ListButton
-        icon={MoreIcon}
+        icon={{
+          parent: MoreIcon,
+          child: LabelIcon,
+        }}
         label="Tags"
         onClick={(e, label) => {
+          console.log("clicked");
           handleAsync();
         }}
         loading={loading}
@@ -53,3 +106,4 @@ export default function NestedList() {
     </List>
   );
 }
+export default Sidebar;
