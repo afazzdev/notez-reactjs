@@ -14,6 +14,12 @@ const useStyles = makeStyles({
     margin: "0 1rem 1rem 0",
     display: "inline-block",
   },
+  body: {
+    overflow: "hidden",
+    WebkitLineClamp: 20,
+    WebkitBoxOrient: "vertical",
+    display: "-webkit-box",
+  },
 });
 
 export interface IContentDisplayProps {
@@ -50,7 +56,12 @@ export default function ContentDisplay(props: IContentDisplayProps) {
             </Typography>
           )}
           {props.body && (
-            <Typography variant="body2" color="textSecondary" component="p">
+            <Typography
+              variant="body2"
+              color="textSecondary"
+              component="p"
+              className={classes.body}
+            >
               {props.body}
             </Typography>
           )}
