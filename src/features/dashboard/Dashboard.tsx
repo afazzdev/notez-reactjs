@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import {
   Container,
   Grid,
@@ -6,15 +7,21 @@ import {
   createStyles,
   Theme,
 } from "@material-ui/core";
+
 import Sidebar from "./Sidebar";
+import DashboardContent from "./DashboardContent";
+import SpeedDials, { IOnActionClick } from "./SpeedDials";
+
 import RootContainer from "../../components/container/RootContainer";
+
 import Header from "../header";
-import { DashboardContent } from "../contents";
+import { openDialog } from "../notes/notes.slice";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     container: {
       overflow: "hidden",
+      position: "relative",
     },
   }),
 );
@@ -22,6 +29,7 @@ const useStyles = makeStyles((theme: Theme) =>
 function Dashboard() {
   const contentParentRef = useRef<any | null>(null);
   const [height, setheight] = useState(0);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (!!contentParentRef) {
@@ -30,6 +38,15 @@ function Dashboard() {
   }, [contentParentRef]);
 
   const classes = useStyles();
+
+  const handleAction: IOnActionClick = (action) => {
+    switch (action) {
+      case "create":
+        return dispatch(openDialog());
+      default:
+        return console.log("default");
+    }
+  };
 
   return (
     <RootContainer>
@@ -53,6 +70,15 @@ function Dashboard() {
           <Grid item xs={9} style={{ overflow: "hidden" }}>
             <DashboardContent maxHeight={height} />
           </Grid>
+          <div
+            style={{
+              position: "absolute",
+              bottom: "2rem",
+              right: "2rem",
+            }}
+          >
+            <SpeedDials onActionClick={handleAction} />
+          </div>
         </Grid>
       </Container>
     </RootContainer>
