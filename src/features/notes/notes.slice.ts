@@ -37,11 +37,15 @@ const notesSlice = createSlice({
     },
     saveNote: (state, { payload }) => {
       const index = state.notes.findIndex((note) => note.id === payload.id);
+      const copyPayload = { ...payload };
+      copyPayload.title = copyPayload.title.trim();
+      copyPayload.body = copyPayload.body.trim();
+
       if (index === -1) {
-        payload.id = Math.random() + 100;
-        state.notes.push(payload);
+        copyPayload.id = Math.random() + 100;
+        state.notes.push(copyPayload);
       } else {
-        state.notes[index] = payload;
+        state.notes[index] = copyPayload;
       }
 
       state.note = initialState.note;
