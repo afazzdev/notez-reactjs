@@ -1,7 +1,11 @@
 import React from "react";
-import { Paper } from "@material-ui/core";
+import { useSelector } from "react-redux";
+import { RootState } from "../../app/root.reducer";
+import { ContentDisplay, ContentEditDialog } from "../contents";
 
 function DashboardContent({ maxHeight }: { maxHeight: number }) {
+  const notes = useSelector((state: RootState) => state.notes.notes);
+
   return (
     <div
       style={{
@@ -16,16 +20,10 @@ function DashboardContent({ maxHeight }: { maxHeight: number }) {
           padding: "1rem",
         }}
       >
-        {Array.from(Array(20)).map((_, i) => (
-          <Paper
-            style={{
-              width: "100%",
-              height: Math.round(100 + Math.random() * 100),
-              margin: "0 1rem 1rem 0",
-              display: "inline-block",
-            }}
-          />
+        {notes.map((note) => (
+          <ContentDisplay key={note.id} {...note} />
         ))}
+        <ContentEditDialog />
       </div>
     </div>
   );
