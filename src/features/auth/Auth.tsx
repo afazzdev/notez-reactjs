@@ -75,7 +75,7 @@ function Auth({
             history.push(`/@${res.data?.username}`);
           })
           .catch((err) => {
-            console.log(`error: ${err}`);
+            console.log(`error: `, err);
             setSubmitting(false);
           });
       }}

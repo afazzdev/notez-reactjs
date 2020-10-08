@@ -56,7 +56,7 @@ function App() {
   const dispatch = useDispatch<AppDispatchType>();
 
   useEffect(() => {
-    console.log("fired 1");
+    console.log("getting user");
     dispatch(getUserAsync());
   }, [dispatch]);
 
@@ -64,7 +64,7 @@ function App() {
     return <FullLoading />;
   }
 
-  console.log("fired 2");
+  console.log("App re-render");
   return (
     <MuiProvider>
       <BrowserRouter>
