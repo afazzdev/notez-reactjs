@@ -1,10 +1,12 @@
 import React from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../app/root.reducer";
 import { ContentDisplay, ContentEditDialog } from "../contents";
+import { editNote } from "../notes/notes.slice";
 
 function DashboardContent({ maxHeight }: { maxHeight: number }) {
   const notes = useSelector((state: RootState) => state.notes.notes);
+  const dispatch = useDispatch();
 
   return (
     <div
@@ -21,7 +23,13 @@ function DashboardContent({ maxHeight }: { maxHeight: number }) {
         }}
       >
         {notes.map((note) => (
-          <ContentDisplay key={note.id} {...note} />
+          <ContentDisplay
+            key={note.id}
+            onClick={() => {
+              dispatch(editNote(note));
+            }}
+            {...note}
+          />
         ))}
         <ContentEditDialog />
       </div>
