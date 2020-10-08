@@ -5,8 +5,6 @@ import CardActionArea from "@material-ui/core/CardActionArea";
 import CardContent from "@material-ui/core/CardContent";
 import CardMedia from "@material-ui/core/CardMedia";
 import Typography from "@material-ui/core/Typography";
-import { useDispatch } from "react-redux";
-import { editNote } from "../notes/notes.slice";
 
 const useStyles = makeStyles({
   root: {
@@ -14,11 +12,21 @@ const useStyles = makeStyles({
     margin: "0 1rem 1rem 0",
     display: "inline-block",
   },
+  title: {
+    overflow: "hidden",
+    WebkitLineClamp: 2,
+    WebkitBoxOrient: "vertical",
+    display: "-webkit-box",
+    whiteSpace: "break-spaces",
+    wordWrap: "break-word",
+  },
   body: {
     overflow: "hidden",
     WebkitLineClamp: 20,
     WebkitBoxOrient: "vertical",
     display: "-webkit-box",
+    whiteSpace: "break-spaces",
+    wordWrap: "break-word",
   },
 });
 
@@ -26,43 +34,48 @@ export interface IContentDisplayProps {
   image?: string;
   title?: string;
   body?: string;
+  onClick?: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 }
 
-export default function ContentDisplay(props: IContentDisplayProps) {
+export default function ContentDisplay({
+  image,
+  title,
+  body,
+  onClick,
+}: IContentDisplayProps) {
   const classes = useStyles();
-  const dispatch = useDispatch();
 
   return (
     <Card className={classes.root}>
-      <CardActionArea
-        onClick={() => {
-          console.log(props);
-          dispatch(editNote(props));
-        }}
-      >
-        {props.image && (
+      <CardActionArea onClick={onClick}>
+        {image && (
           <CardMedia
             component="img"
-            alt={props.title}
+            alt={title}
             height="140"
-            image={props.image}
-            title={props.title}
+            image={image}
+            title={title}
           />
         )}
         <CardContent>
-          {props.title && (
-            <Typography gutterBottom variant="h5" component="h2">
-              {props.title}
+          {title && (
+            <Typography
+              gutterBottom
+              variant="h5"
+              component="h2"
+              className={classes.title}
+            >
+              {title}
             </Typography>
           )}
-          {props.body && (
+          {body && (
             <Typography
               variant="body2"
               color="textSecondary"
               component="p"
               className={classes.body}
             >
-              {props.body}
+              {body}
             </Typography>
           )}
         </CardContent>
