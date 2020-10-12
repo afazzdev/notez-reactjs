@@ -1,9 +1,10 @@
 /* eslint-disable no-use-before-define */
 import React, { useEffect, useState } from "react";
 import useAutocomplete from "@material-ui/lab/useAutocomplete";
+import { createFilterOptions } from "@material-ui/lab/Autocomplete";
 import NoSsr from "@material-ui/core/NoSsr";
 import CheckIcon from "@material-ui/icons/Check";
-import { difference, differenceWith, isEqual } from "lodash";
+import { isEqual, uniqBy } from "lodash";
 
 import Tag from "../tag/Tag";
 import InputWrapper from "../container/InputWrapper";
@@ -18,10 +19,13 @@ export interface IOption {
 export interface ITagsInput {
   getValues: (tags: IOption[]) => void;
   options: IOption[];
+  defaultValue: IOption[];
 }
 
+const filter = createFilterOptions<IOption>();
+
 export default function TagsInput(props: ITagsInput) {
-  const { getValues = (_) => {}, options = [] } = props;
+  const { getValues = (_) => {}, options = [], defaultValue } = props;
   const [opti, setOpti] = useState(options);
 
   const {
@@ -34,35 +38,61 @@ export default function TagsInput(props: ITagsInput) {
     value,
     focused,
     setAnchorEl,
-    inputValue,
   } = useAutocomplete({
     id: "tags",
-    // defaultValue: [top100Films[1]],
+    defaultValue,
     multiple: true,
     options: opti,
     getOptionLabel: (option) => option.title,
+    filterOptions(options, state) {
+      const filtered = filter(options, state) as IOption[];
+      const currentIndex = filtered.findIndex(
+        (obj) => obj.title === state.inputValue,
+      );
+
+      if (state.inputValue !== "") {
+        filtered.push({
+          value: state.inputValue,
+          title: state.inputValue,
+        });
+      }
+
+      if (currentIndex !== -1) {
+        delete filtered[currentIndex];
+      }
+
+      return filtered;
+    },
+    getOptionSelected(option, value) {
+      return isEqual(option, value);
+    },
+    onChange(event, value, reason, details) {
+      switch (reason) {
+        case "select-option":
+          // check if new object is already exist in "value"
+          const unique = uniqBy(
+            [
+              ...opti,
+              {
+                ...details?.option!,
+                title: details?.option.title.toLowerCase()!,
+              },
+            ],
+            "title",
+          );
+          setOpti(unique);
+          break;
+
+        default:
+          break;
+      }
+    },
+    autoHighlight: true,
   });
 
   useEffect(() => {
+    console.log(setAnchorEl);
     getValues(value);
-  }, [value, getValues]);
-
-  useEffect(() => {
-    if (inputValue.length > 0 && !opti.find((el) => el?.title === inputValue)) {
-      setOpti([
-        ...opti,
-        {
-          title: inputValue,
-          value: inputValue.toLowerCase(),
-        },
-      ]);
-    }
-  }, [opti, setOpti, inputValue]);
-
-  useEffect(() => {
-    setOpti(
-      difference(opti, differenceWith(opti, [...options, ...value], isEqual)),
-    );
     // eslint-disable-next-line
   }, [value]);
 
