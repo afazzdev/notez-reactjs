@@ -12,6 +12,7 @@ import { RootState } from "../../app/root.reducer";
 import { closeDialog, saveNote } from "../notes/notes.slice";
 
 import TextArea from "../../components/input/TextArea";
+import TagInput, { IOption } from "../../components/input/TagInput";
 
 export default function ContentEditDialog() {
   const { dialog, note } = useSelector(
@@ -91,6 +92,22 @@ export default function ContentEditDialog() {
           value={state.body}
           onChange={handleChange}
           onKeyPress={handleKeyPress}
+        />
+        <TagInput
+          options={[
+            {
+              title: "sometitle",
+              value: "some value",
+            },
+          ]}
+          defaultValue={state.tags as IOption[]}
+          getValues={(values) => {
+            console.log(values);
+            setState({
+              ...state,
+              tags: values,
+            });
+          }}
         />
       </DialogContent>
       <DialogActions>

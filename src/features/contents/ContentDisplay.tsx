@@ -5,6 +5,7 @@ import CardActionArea from "@material-ui/core/CardActionArea";
 import CardContent from "@material-ui/core/CardContent";
 import CardMedia from "@material-ui/core/CardMedia";
 import Typography from "@material-ui/core/Typography";
+import Tag from "../../components/tag/Tag";
 
 const useStyles = makeStyles({
   root: {
@@ -34,6 +35,7 @@ export interface IContentDisplayProps {
   image?: string;
   title?: string;
   body?: string;
+  tags?: any[];
   onClick?: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 }
 
@@ -41,6 +43,7 @@ export default function ContentDisplay({
   image,
   title,
   body,
+  tags,
   onClick,
 }: IContentDisplayProps) {
   const classes = useStyles();
@@ -77,6 +80,17 @@ export default function ContentDisplay({
             >
               {body}
             </Typography>
+          )}
+          {tags && (
+            <span
+              style={{
+                display: "inline-flex",
+              }}
+            >
+              {tags.map((tag) => (
+                <Tag label={tag.title} key={tag.title} />
+              ))}
+            </span>
           )}
         </CardContent>
       </CardActionArea>

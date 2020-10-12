@@ -1,10 +1,18 @@
 import { createSlice } from "@reduxjs/toolkit";
 
+export interface ITag {
+  id?: string;
+  value?: string;
+  title?: string;
+  [key: string]: any;
+}
+
 export interface IDatum {
   id: string;
   image: string;
   title: string;
   body: string;
+  tags: ITag[];
 }
 
 export const initialState = {
@@ -15,6 +23,7 @@ export const initialState = {
     image: "",
     title: "",
     body: "",
+    tags: [],
   } as IDatum,
 };
 
