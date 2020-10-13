@@ -1,4 +1,12 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { AppThunk } from "../../app/store";
+import {
+  createNoteAPI,
+  editNoteAPI,
+  getNoteByIdAPI,
+  getNotesAPI,
+  IResponseData,
+} from "../../api";
 
 export interface ITag {
   id?: string;
@@ -7,7 +15,7 @@ export interface ITag {
   [key: string]: any;
 }
 
-export interface IDatum {
+export interface INote {
   id: string;
   image: string;
   title: string;
@@ -16,7 +24,7 @@ export interface IDatum {
 }
 
 export const initialState = {
-  notes: [] as IDatum[],
+  notes: [] as INote[],
   dialog: false,
   note: {
     id: "",
@@ -24,7 +32,7 @@ export const initialState = {
     title: "",
     body: "",
     tags: [],
-  } as IDatum,
+  } as INote,
 };
 
 const notesSlice = createSlice({
@@ -47,8 +55,8 @@ const notesSlice = createSlice({
     saveNote: (state, { payload }) => {
       const index = state.notes.findIndex((note) => note.id === payload.id);
       const copyPayload = { ...payload };
-      copyPayload.title = copyPayload.title.trim();
-      copyPayload.body = copyPayload.body.trim();
+      copyPayload.title = copyPayload?.title?.trim() ?? "";
+      copyPayload.body = copyPayload?.body?.trim() ?? "";
 
       if (index === -1) {
         copyPayload.id = Math.random() + 100;
@@ -60,6 +68,9 @@ const notesSlice = createSlice({
       state.note = initialState.note;
       state.dialog = false;
     },
+    getNotes(state, { payload }) {
+      state.notes = payload;
+    },
   },
 });
 
@@ -70,4 +81,21 @@ export const {
   saveNote,
 } = notesSlice.actions;
 
+const { getNotes } = notesSlice.actions;
+
 export default notesSlice.reducer;
+
+export const createNoteThunk = (
+  data: INote,
+): AppThunk<Promise<IResponseData<INote>>> => async (dispatch) => {
+  // @ts-ignore
+  delete data.id;
+
+  return await createNoteAPI<INote, IResponseData<INote>>(data);
+};
+
+export const getNotesThunk = (): AppThunk => async (dispatch) => {
+  const notes = await getNotesAPI<IResponseData<INote[]>>();
+
+  dispatch(getNotes(notes.data));
+};
