@@ -1,8 +1,7 @@
 import axios from "axios";
+import { setToken, getEndpoint } from "./base";
 
-const endpoint =
-  process.env.REACT_APP_ENDPOINT + "/users" ||
-  "http://localhost:5000/api/users";
+const endpoint = getEndpoint("/users");
 
 export interface IUser {
   username?: string;
@@ -22,13 +21,13 @@ export interface IErrorFromApi
 class Auth {
   async signUp(data: IUser) {
     const user = await axios.post<IDataFromApi>(`${endpoint}/signup`, data);
-
+    setToken(user.data.token!);
     return user.data;
   }
 
   async signIn(data: IUser) {
     const user = await axios.post<IDataFromApi>(`${endpoint}/signin`, data);
-
+    setToken(user.data.token!);
     return user.data;
   }
 
