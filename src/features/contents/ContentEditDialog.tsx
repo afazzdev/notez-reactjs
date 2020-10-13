@@ -9,17 +9,20 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 
 import { RootState } from "../../app/root.reducer";
 
-import { closeDialog, saveNote } from "../notes/notes.slice";
+import { closeDialog, createNoteThunk, saveNote } from "../notes/notes.slice";
 
 import TextArea from "../../components/input/TextArea";
 import TagInput, { IOption } from "../../components/input/TagInput";
+import { AppDispatchType } from "../../app/store";
+import { CircularProgress } from "@material-ui/core";
 
 export default function ContentEditDialog() {
   const { dialog, note } = useSelector(
     (state: RootState) => state.notes,
     shallowEqual,
   );
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatchType>();
+  const [loading, setLoading] = useState(false);
 
   const [state, setState] = useState(note);
   useEffect(() => {
@@ -28,7 +31,13 @@ export default function ContentEditDialog() {
 
   const handleClose = () => dispatch(closeDialog());
 
-  const handleSave = () => dispatch(saveNote(state));
+  const handleSave = async () => {
+    setLoading(true);
+    dispatch(createNoteThunk(state)).then((res) => {
+      dispatch(saveNote(res.data));
+      setLoading(false);
+    });
+  };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
@@ -114,9 +123,13 @@ export default function ContentEditDialog() {
         <Button onClick={handleClose} color="primary">
           Cancel
         </Button>
-        <Button onClick={handleSave} type="submit" color="primary">
-          Save
-        </Button>
+        {loading ? (
+          <CircularProgress />
+        ) : (
+          <Button onClick={handleSave} type="submit" color="primary">
+            Save
+          </Button>
+        )}
       </DialogActions>
     </Dialog>
   );

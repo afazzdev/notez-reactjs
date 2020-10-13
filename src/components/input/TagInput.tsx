@@ -91,7 +91,7 @@ export default function TagsInput(props: ITagsInput) {
   });
 
   useEffect(() => {
-    console.log(setAnchorEl);
+    // console.log(setAnchorEl);
     getValues(value);
     // eslint-disable-next-line
   }, [value]);
