@@ -3,7 +3,7 @@ import { AppThunk } from "../../app/store";
 import {
   createNoteAPI,
   editNoteAPI,
-  getNoteByIdAPI,
+  // getNoteByIdAPI,
   getNotesAPI,
   IResponseData,
 } from "../../api";
@@ -93,10 +93,14 @@ export const createNoteThunk = (
   return note;
 };
 
-export const getNotesThunk = (): AppThunk => async (dispatch) => {
+export const getNotesThunk = (): AppThunk<Promise<void>> => async (
+  dispatch,
+) => {
   const notes = await getNotesAPI<IResponseData<INote[]>>();
 
   dispatch(getNotes(notes.data));
+
+  return;
 };
 
 export const editNoteThunk = (
