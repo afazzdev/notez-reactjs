@@ -27,17 +27,15 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 function Dashboard() {
+  const classes = useStyles();
   const contentParentRef = useRef<any | null>(null);
-  const [height, setheight] = useState(0);
   const dispatch = useDispatch();
 
+  // get wrapper height for child to enable scroll
+  const [height, setheight] = useState(0);
   useEffect(() => {
-    if (!!contentParentRef) {
-      setheight(contentParentRef.current?.clientHeight!);
-    }
+    setheight(contentParentRef.current?.clientHeight!);
   }, [contentParentRef]);
-
-  const classes = useStyles();
 
   const handleAction: IOnActionClick = (action) => {
     switch (action) {
