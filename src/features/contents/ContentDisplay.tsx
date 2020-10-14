@@ -21,7 +21,7 @@ const useStyles = makeStyles({
     whiteSpace: "break-spaces",
     wordWrap: "break-word",
   },
-  body: {
+  content: {
     overflow: "hidden",
     WebkitLineClamp: 20,
     WebkitBoxOrient: "vertical",
@@ -34,7 +34,7 @@ const useStyles = makeStyles({
 export interface IContentDisplayProps {
   image?: string;
   title?: string;
-  body?: string;
+  content?: string;
   tags?: any[];
   onClick?: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 }
@@ -42,7 +42,7 @@ export interface IContentDisplayProps {
 export default function ContentDisplay({
   image,
   title,
-  body,
+  content,
   tags,
   onClick,
 }: IContentDisplayProps) {
@@ -71,14 +71,14 @@ export default function ContentDisplay({
               {title}
             </Typography>
           )}
-          {body && (
+          {content && (
             <Typography
               variant="body2"
               color="textSecondary"
               component="p"
-              className={classes.body}
+              className={classes.content}
             >
-              {body}
+              {content}
             </Typography>
           )}
           {tags && (
