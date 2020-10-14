@@ -16,10 +16,10 @@ export interface ITag {
 }
 
 export interface INote {
-  id: string;
+  id?: string;
   image: string;
   title: string;
-  body: string;
+  content: string;
   tags: ITag[];
 }
 
@@ -30,7 +30,7 @@ export const initialState = {
     id: "",
     image: "",
     title: "",
-    body: "",
+    content: "",
     tags: [],
   } as INote,
 };
@@ -53,18 +53,17 @@ const notesSlice = createSlice({
       state.dialog = true;
     },
     saveNote: (state, { payload }) => {
+      // get current note index
       const index = state.notes.findIndex((note) => note.id === payload.id);
-      const copyPayload = { ...payload };
-      copyPayload.title = copyPayload?.title?.trim() ?? "";
-      copyPayload.body = copyPayload?.body?.trim() ?? "";
 
-      if (index === -1) {
-        copyPayload.id = Math.random() + 100;
-        state.notes.push(copyPayload);
-      } else {
-        state.notes[index] = copyPayload;
+      if (index !== -1) {
+        // delete previous value
+        state.notes.splice(index, 1);
       }
+      // Assign new value
+      state.notes.unshift(payload);
 
+      // Return value current active note to initial and close it
       state.note = initialState.note;
       state.dialog = false;
     },
@@ -74,28 +73,41 @@ const notesSlice = createSlice({
   },
 });
 
-export const {
-  openDialog,
-  closeDialog,
-  editNote,
-  saveNote,
-} = notesSlice.actions;
+// Public actions
+export const { openDialog, closeDialog, editNote } = notesSlice.actions;
 
-const { getNotes } = notesSlice.actions;
+// Private actions
+const { getNotes, saveNote } = notesSlice.actions;
 
 export default notesSlice.reducer;
 
 export const createNoteThunk = (
   data: INote,
 ): AppThunk<Promise<IResponseData<INote>>> => async (dispatch) => {
-  // @ts-ignore
+  // delete default id
   delete data.id;
+  const note = await createNoteAPI<INote, IResponseData<INote>>(data);
 
-  return await createNoteAPI<INote, IResponseData<INote>>(data);
+  dispatch(saveNote(note.data));
+
+  return note;
 };
 
 export const getNotesThunk = (): AppThunk => async (dispatch) => {
   const notes = await getNotesAPI<IResponseData<INote[]>>();
 
   dispatch(getNotes(notes.data));
+};
+
+export const editNoteThunk = (
+  data: INote,
+): AppThunk<Promise<IResponseData<INote>>> => async (dispatch) => {
+  const editedNote = await editNoteAPI<INote, IResponseData<INote>>(
+    data.id!,
+    data,
+  );
+
+  dispatch(saveNote(editedNote.data));
+
+  return editedNote;
 };

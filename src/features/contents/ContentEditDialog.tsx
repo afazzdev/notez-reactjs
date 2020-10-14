@@ -1,20 +1,30 @@
 import React, { useState, useEffect } from "react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import Button from "@material-ui/core/Button";
-import InputBase from "@material-ui/core/InputBase";
-import Dialog from "@material-ui/core/Dialog";
-import DialogActions from "@material-ui/core/DialogActions";
-import DialogContent from "@material-ui/core/DialogContent";
-import DialogTitle from "@material-ui/core/DialogTitle";
+import {
+  Paper,
+  PaperProps,
+  Button,
+  InputBase,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  CircularProgress,
+} from "@material-ui/core";
 
+import { AppDispatchType } from "../../app/store";
 import { RootState } from "../../app/root.reducer";
 
-import { closeDialog, createNoteThunk, saveNote } from "../notes/notes.slice";
+import {
+  closeDialog,
+  createNoteThunk,
+  editNoteThunk,
+} from "../notes/notes.slice";
 
 import TextArea from "../../components/input/TextArea";
 import TagInput, { IOption } from "../../components/input/TagInput";
-import { AppDispatchType } from "../../app/store";
-import { CircularProgress } from "@material-ui/core";
+
+// change modal component to <form />
+const FormPaper = (props: PaperProps) => <Paper component="form" {...props} />;
 
 export default function ContentEditDialog() {
   const { dialog, note } = useSelector(
@@ -31,10 +41,23 @@ export default function ContentEditDialog() {
 
   const handleClose = () => dispatch(closeDialog());
 
-  const handleSave = async () => {
+  // handler for creating new note
+  const handleCreateNote = () => dispatch(createNoteThunk(state));
+  // handler from editing note
+  const handleEditNote = () => dispatch(editNoteThunk(state));
+
+  const handleSave = async (e: React.FormEvent<HTMLDivElement>) => {
+    e.preventDefault();
     setLoading(true);
-    dispatch(createNoteThunk(state)).then((res) => {
-      dispatch(saveNote(res.data));
+    let method: typeof handleCreateNote | typeof handleEditNote;
+
+    if (state.id) {
+      method = handleEditNote;
+    } else {
+      method = handleCreateNote;
+    }
+
+    method().finally(() => {
       setLoading(false);
     });
   };
@@ -53,12 +76,24 @@ export default function ContentEditDialog() {
       HTMLTextAreaElement | HTMLInputElement | HTMLDivElement
     >,
   ) => {
+    // Add new line
     if (e.shiftKey && e.key === "Enter") {
+      // add return so submit not fired
       return;
     }
-    if (e.key === "Enter" && !e.shiftKey) {
+
+    if (e.ctrlKey && e.key === "Enter") {
+      handleSave(e as any);
+      // add return so focus not change to next field
+      return;
+    }
+
+    // Change Input focus to next field with "Enter"
+    if (e.key === "Enter") {
       e.preventDefault();
-      handleSave();
+      const form = (e.target as HTMLFormElement).form;
+      const index = Array.prototype.indexOf.call(form, e.target);
+      form.elements[index + 1].focus();
     }
   };
 
@@ -68,9 +103,10 @@ export default function ContentEditDialog() {
       onClose={handleClose}
       aria-labelledby="form-dialog-title"
       fullWidth
+      PaperComponent={FormPaper}
+      onSubmit={handleSave}
     >
-      <DialogTitle id="form-dialog-title">
-        <input type="hidden" value="name" />
+      <DialogContent>
         <InputBase
           autoFocus
           fullWidth
@@ -88,17 +124,16 @@ export default function ContentEditDialog() {
           }}
           style={{
             fontSize: "1.2rem",
+            paddingBottom: "2rem",
           }}
         />
-      </DialogTitle>
-      <DialogContent>
         <TextArea
-          autoComplete="body"
-          aria-label="body"
-          rowsMin={3}
+          autoComplete="content"
+          aria-label="content"
           placeholder="Notes..."
-          name="body"
-          value={state.body}
+          name="content"
+          value={state.content}
+          rows={15}
           onChange={handleChange}
           onKeyPress={handleKeyPress}
         />
@@ -123,13 +158,9 @@ export default function ContentEditDialog() {
         <Button onClick={handleClose} color="primary">
           Cancel
         </Button>
-        {loading ? (
-          <CircularProgress />
-        ) : (
-          <Button onClick={handleSave} type="submit" color="primary">
-            Save
-          </Button>
-        )}
+        <Button type="submit" color="primary">
+          {loading ? <CircularProgress size={24} /> : "Save"}
+        </Button>
       </DialogActions>
     </Dialog>
   );
