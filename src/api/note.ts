@@ -28,5 +28,5 @@ export const getNoteByIdAPI = <R>(id: string) =>
 
 export const editNoteAPI = <T, R>(id: string, data: T) =>
   axios
-    .post<T, AxiosResponse<R>>(endpoint + "/" + id, data)
+    .patch<T, AxiosResponse<R>>(endpoint + "/" + id, data)
     .then((res) => res.data);
