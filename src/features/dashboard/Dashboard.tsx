@@ -1,6 +1,6 @@
 // Libs
 import React, { useRef, useEffect, useState, useCallback } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   Container,
   Grid,
@@ -29,6 +29,7 @@ import DashboardContent from "./DashboardContent";
 import SpeedDials, { IOnActionClick } from "./SpeedDials";
 import RootContainer from "../../components/container/RootContainer";
 import ScrollableGridItem from "../../components/grid/ScrollableGridItem";
+import { RootState } from "../../app/root.reducer";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -41,6 +42,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 function Dashboard() {
   const classes = useStyles();
+  const userId = useSelector((state: RootState) => state.auth.user.id!);
   const contentParentRef = useRef<any | null>(null);
   const dispatch = useDispatch<AppDispatchType>();
 
@@ -54,10 +56,10 @@ function Dashboard() {
   const [getNotesLoading, setGetNotesLoading] = useState(false);
   const getNotes = useCallback(() => {
     setGetNotesLoading(true);
-    dispatch(getNotesThunk()).finally(() => {
+    dispatch(getNotesThunk({ userId })).finally(() => {
       setGetNotesLoading(false);
     });
-  }, [dispatch]);
+  }, [dispatch, userId]);
   useEffect(() => {
     getNotes();
   }, [getNotes]);

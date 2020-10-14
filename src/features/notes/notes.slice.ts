@@ -5,6 +5,7 @@ import {
   editNoteAPI,
   // getNoteByIdAPI,
   getNotesAPI,
+  GetNotesFilter,
   IResponseData,
 } from "../../api";
 
@@ -93,10 +94,10 @@ export const createNoteThunk = (
   return note;
 };
 
-export const getNotesThunk = (): AppThunk<Promise<void>> => async (
-  dispatch,
-) => {
-  const notes = await getNotesAPI<IResponseData<INote[]>>();
+export const getNotesThunk = ({
+  userId,
+}: GetNotesFilter): AppThunk<Promise<void>> => async (dispatch) => {
+  const notes = await getNotesAPI<IResponseData<INote[]>>({ userId });
 
   dispatch(getNotes(notes.data));
 

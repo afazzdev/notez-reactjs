@@ -1,14 +1,14 @@
 import axios, { AxiosResponse } from "axios";
-import { getEndpoint, getToken } from "./base";
+import { getEndpoint, getToken, qs } from "./base";
 
 const endpoint = getEndpoint("/notes");
 
 axios.interceptors.request.use(
   function (config) {
+    // Add headers every request
     config.headers = {
       Authorization: `Bearer ${getToken()}`,
     };
-    // Do something before request is sent
     return config;
   },
   function (error) {
@@ -20,8 +20,11 @@ axios.interceptors.request.use(
 export const createNoteAPI = <T, R>(data: T) =>
   axios.post<T, AxiosResponse<R>>(endpoint, data).then((res) => res.data);
 
-export const getNotesAPI = <R>() =>
-  axios.get<R>(endpoint).then((res) => res.data);
+export interface GetNotesFilter {
+  userId: string;
+}
+export const getNotesAPI = <R>(filter: Partial<GetNotesFilter>) =>
+  axios.get<R>(`${endpoint}?${qs(filter)}`).then((res) => res.data);
 
 export const getNoteByIdAPI = <R>(id: string) =>
   axios.get<R>(endpoint + "/" + id).then((res) => res.data);
