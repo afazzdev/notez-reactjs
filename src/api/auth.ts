@@ -4,8 +4,10 @@ import { setToken, getEndpoint } from "./base";
 const endpoint = getEndpoint("/users");
 
 export interface IUser {
+  id?: string;
   username?: string;
   password?: string;
+  [key: string]: any;
 }
 
 export interface IDataFromApi {
