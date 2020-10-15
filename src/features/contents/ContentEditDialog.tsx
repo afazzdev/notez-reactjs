@@ -20,10 +20,11 @@ import {
   closeDialog,
   createNoteThunk,
   editNoteThunk,
+  deleteNoteThunk,
 } from "../notes/notes.slice";
 
 import TextArea from "../../components/input/TextArea";
-import TagInput, { IOption } from "../../components/input/TagInput";
+// import TagInput, { IOption } from "../../components/input/TagInput";
 
 // change modal component to <form />
 const FormPaper = (props: PaperProps) => <Paper component="form" {...props} />;
@@ -34,7 +35,6 @@ export default function ContentEditDialog() {
     shallowEqual,
   );
   const dispatch = useDispatch<AppDispatchType>();
-  const [loading, setLoading] = useState(false);
 
   const [state, setState] = useState(note);
   useEffect(() => {
@@ -43,24 +43,50 @@ export default function ContentEditDialog() {
 
   const handleClose = () => dispatch(closeDialog());
 
+  /**
+   * Loading for submit = pending
+   */
+  const [loading, setLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   // handler for creating new note
   const handleCreateNote = () => dispatch(createNoteThunk(state));
   // handler from editing note
   const handleEditNote = () => dispatch(editNoteThunk(state));
+  // handle delete note
+  const handleDeleteNote = () => dispatch(deleteNoteThunk(state.id));
 
-  const handleSave = async (e: React.FormEvent<HTMLDivElement>) => {
+  const handleSubmit = async (
+    e:
+      | React.FormEvent<HTMLDivElement>
+      | React.MouseEvent<HTMLAnchorElement, MouseEvent>,
+  ) => {
+    const deleteButton = e.currentTarget.getAttribute("name") === "delete";
     e.preventDefault();
-    setLoading(true);
-    let method: typeof handleCreateNote | typeof handleEditNote;
+    if (deleteButton) {
+      setDeleteLoading(true);
+    } else {
+      setLoading(true);
+    }
+    console.log(deleteButton);
+    let method:
+      | typeof handleCreateNote
+      | typeof handleEditNote
+      | typeof handleDeleteNote;
 
-    if (state.id) {
+    if (deleteButton) {
+      method = handleDeleteNote;
+    } else if (state.id) {
       method = handleEditNote;
     } else {
       method = handleCreateNote;
     }
 
     method().finally(() => {
-      setLoading(false);
+      if (deleteButton) {
+        setDeleteLoading(false);
+      } else {
+        setLoading(false);
+      }
     });
   };
 
@@ -85,7 +111,7 @@ export default function ContentEditDialog() {
     }
 
     if (e.ctrlKey && e.key === "Enter") {
-      handleSave(e as any);
+      handleSubmit(e as any);
       // add return so focus not change to next field
       return;
     }
@@ -93,15 +119,16 @@ export default function ContentEditDialog() {
     // Change Input focus to next field with "Enter"
     if (e.key === "Enter") {
       e.preventDefault();
-      const form = (e.target as HTMLFormElement).form;
-      const index = Array.prototype.indexOf.call(form, e.target);
-      form.elements[index + 1].focus();
+      // const form = (e.target as HTMLFormElement).form;
+      // const index = Array.prototype.indexOf.call(form, e.target);
+      // form.elements[index + 1].focus();
     }
   };
 
   const EndAdornment = () => (
     <IconButton
       size="small"
+      {...(state.favorite && { color: "secondary" })}
       onClick={() => {
         setState((prev) => ({
           ...prev,
@@ -124,7 +151,7 @@ export default function ContentEditDialog() {
       aria-labelledby="form-dialog-title"
       fullWidth
       PaperComponent={FormPaper}
-      onSubmit={handleSave}
+      onSubmit={handleSubmit}
     >
       <DialogContent>
         <InputBase
@@ -156,7 +183,10 @@ export default function ContentEditDialog() {
           value={state.content}
           rows={15}
           onChange={handleChange}
-          onKeyPress={handleKeyPress}
+          onKeyPress={(e) => {
+            e.preventDefault();
+            handleSubmit(e as any);
+          }}
         />
         {/* <TagInput
           options={[
@@ -176,11 +206,24 @@ export default function ContentEditDialog() {
         /> */}
       </DialogContent>
       <DialogActions>
+        {state.id && (
+          <Button
+            color="secondary"
+            name="delete"
+            onClick={
+              (handleSubmit as unknown) as (
+                event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+              ) => void
+            }
+          >
+            {deleteLoading ? <CircularProgress size={24} /> : "Delete"}
+          </Button>
+        )}
         <Button onClick={handleClose} color="primary">
           Cancel
         </Button>
-        <Button type="submit" color="primary">
-          {loading ? <CircularProgress size={24} /> : "Save"}
+        <Button type="submit" color="primary" variant="contained">
+          {loading ? <CircularProgress size={24} color="inherit" /> : "Save"}
         </Button>
       </DialogActions>
     </Dialog>
