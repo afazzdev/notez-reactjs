@@ -1,6 +1,6 @@
 // Libs
 import React, { useRef, useEffect, useState, useCallback } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector, shallowEqual } from "react-redux";
 import {
   Container,
   Grid,
@@ -20,6 +20,7 @@ import {
   openDialog,
   editNote,
   INote,
+  changeRouteThunk,
 } from "../notes/notes.slice";
 
 // Components
@@ -42,7 +43,13 @@ const useStyles = makeStyles((theme: Theme) =>
 
 function Dashboard() {
   const classes = useStyles();
-  const userId = useSelector((state: RootState) => state.auth.user.id!);
+  const { filter, userId } = useSelector(
+    (state: RootState) => ({
+      userId: state.auth.user.id,
+      filter: state.notes.filter,
+    }),
+    shallowEqual,
+  );
   const contentParentRef = useRef<any | null>(null);
   const dispatch = useDispatch<AppDispatchType>();
 
@@ -56,10 +63,12 @@ function Dashboard() {
   const [getNotesLoading, setGetNotesLoading] = useState(false);
   const getNotes = useCallback(() => {
     setGetNotesLoading(true);
-    dispatch(getNotesThunk({ userId })).finally(() => {
+    dispatch(
+      changeRouteThunk(filter, { userId, favorite: filter === "favorite" }),
+    ).finally(() => {
       setGetNotesLoading(false);
     });
-  }, [dispatch, userId]);
+  }, [dispatch, userId, filter]);
   useEffect(() => {
     getNotes();
   }, [getNotes]);

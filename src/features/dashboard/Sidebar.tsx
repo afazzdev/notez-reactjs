@@ -1,89 +1,35 @@
-import React /** , { useState } */ from "react";
+import React from "react";
 import List from "@material-ui/core/List";
 import NotesIcon from "@material-ui/icons/Notes";
 import StarBorderIcon from "@material-ui/icons/StarBorder";
-// import LabelIcon from "@material-ui/icons/Label";
-// import MoreIcon from "@material-ui/icons/More";
-import ListButton /**, { IListButtonData }*/ from "../../components/list/ListButton";
-// import { isEqual } from "lodash";
-
-// const data = [
-//   {
-//     label: "Some tag name",
-//   },
-//   {
-//     label: "Some tag name",
-//   },
-//   {
-//     label: "Some tag name",
-//   },
-//   {
-//     label: "Some tag name",
-//   },
-//   {
-//     label: "Some tag name",
-//   },
-//   {
-//     label: "Some tag name",
-//   },
-//   {
-//     label: "Some tag name",
-//   },
-//   {
-//     label: "Some tag name",
-//   },
-//   {
-//     label: "Some tag name",
-//   },
-//   {
-//     label: "Some tag name",
-//   },
-//   {
-//     label: "Some tag name",
-//   },
-//   {
-//     label: "Some tag name",
-//   },
-//   {
-//     label: "Some tag name",
-//   },
-//   {
-//     label: "Some tag name",
-//   },
-//   {
-//     label: "Some tag name",
-//   },
-// ];
+import ListButton from "../../components/list/ListButton";
+import { RootState } from "../../app/root.reducer";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatchType } from "../../app/store";
+import { changeRoute, NoteFilter } from "../notes/notes.slice";
 
 function Sidebar() {
-  // const [state, setState] = useState<IListButtonData>([]);
-  // const [loading, setLoading] = useState(false);
+  const filter = useSelector((state: RootState) => state.notes.filter);
+  const dispatch = useDispatch<AppDispatchType>();
 
-  // const handleAsync = async () => {
-  //   if (state.length === 0) {
-  //     setLoading(true);
-  //   }
-  //   console.log(loading);
-  //   new Promise((resolve) => {
-  //     setTimeout(() => {
-  //       resolve(data);
-  //     }, 5000);
-  //   })
-  //     .then((res) => {
-  //       if (!isEqual(res, state)) {
-  //         setState(res as IListButtonData);
-  //         console.log(state);
-  //       }
-  //     })
-  //     .finally(() => {
-  //       setLoading(false);
-  //     });
-  // };
+  const handleChangeRoute = (route: NoteFilter) => {
+    dispatch(changeRoute(route));
+  };
 
   return (
     <List component="nav">
-      <ListButton icon={NotesIcon} label="Notes" />
-      <ListButton icon={StarBorderIcon} label="Favorites" />
+      <ListButton
+        icon={NotesIcon}
+        label="Notes"
+        selected={filter === "notes"}
+        onClick={() => handleChangeRoute("notes")}
+      />
+      <ListButton
+        icon={StarBorderIcon}
+        label="Favorites"
+        selected={filter === "favorite"}
+        onClick={() => handleChangeRoute("favorite")}
+      />
       {/* <ListButton
         icon={{
           parent: MoreIcon,
