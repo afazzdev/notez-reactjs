@@ -1,4 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { omitBy, isEmpty } from "lodash";
+
 import { AppThunk } from "../../app/store";
 import {
   createNoteAPI,
@@ -6,6 +8,7 @@ import {
   // getNoteByIdAPI,
   getNotesAPI,
   GetNotesFilter,
+  deleteNoteAPI,
   IResponseData,
 } from "../../api";
 
@@ -66,6 +69,9 @@ const notesSlice = createSlice({
       state.note = initialState.note;
       state.dialog = false;
     },
+    getNotes(state, { payload }) {
+      state.notes = payload;
+    },
     editNote: (state, { payload }) => {
       const index = state.notes.findIndex((note) => note.id === payload.id);
 
@@ -77,7 +83,7 @@ const notesSlice = createSlice({
       const index = state.notes.findIndex((note) => note.id === payload.id);
 
       if (index !== -1) {
-        // delete previous value
+        // delete previous value (and moving to index 0)
         state.notes.splice(index, 1);
       }
 
@@ -87,14 +93,12 @@ const notesSlice = createSlice({
       } else {
         state.notes.unshift(payload);
       }
+    },
+    deleteNote(state, { payload }) {
+      // NOTE: Array.prototype.filter DOES NOT MUTATE ARRAY!
+      state.notes = state.notes.filter((note) => note.id !== payload);
+    },
 
-      // Return value current active note to initial and close it
-      state.note = initialState.note;
-      state.dialog = false;
-    },
-    getNotes(state, { payload }) {
-      state.notes = payload;
-    },
     changeRoute(state, { payload }) {
       state.filter = payload;
     },
@@ -110,18 +114,22 @@ export const {
 } = notesSlice.actions;
 
 // Private actions
-const { getNotes, saveNote } = notesSlice.actions;
+const { getNotes, saveNote, deleteNote } = notesSlice.actions;
 
 export default notesSlice.reducer;
 
+/**
+ * Thunk actions
+ */
 export const createNoteThunk = (
   data: Partial<INote>,
 ): AppThunk<Promise<IResponseData<INote>>> => async (dispatch) => {
-  // delete default id
-  delete data.id;
-  const note = await createNoteAPI<INote, IResponseData<INote>>(data as INote);
+  const note = await createNoteAPI<INote, IResponseData<INote>>(
+    (omitBy(data, isEmpty) as unknown) as INote,
+  );
 
   dispatch(saveNote(note.data));
+  dispatch(closeDialog());
 
   return note;
 };
@@ -145,8 +153,20 @@ export const editNoteThunk = (
   );
 
   dispatch(saveNote(editedNote.data));
+  dispatch(closeDialog());
 
   return editedNote;
+};
+
+export const deleteNoteThunk = (id: string): AppThunk<Promise<void>> => async (
+  dispatch,
+) => {
+  await deleteNoteAPI(id);
+
+  dispatch(deleteNote(id));
+  dispatch(closeDialog());
+
+  return;
 };
 
 export const changeRouteThunk = (
