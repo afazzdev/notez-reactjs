@@ -30,6 +30,9 @@ export const getNotesAPI = <R>(filter: Partial<GetNotesFilter>) =>
 export const getNoteByIdAPI = <R>(id: string) =>
   axios.get<R>(endpoint + "/" + id).then((res) => res.data);
 
+export const deleteNoteAPI = <R>(id: string) =>
+  axios.delete<R>(endpoint + "/" + id).then((res) => res.data);
+
 export const editNoteAPI = <T, R>(id: string, data: T) =>
   axios
     .patch<T, AxiosResponse<R>>(endpoint + "/" + id, data)
