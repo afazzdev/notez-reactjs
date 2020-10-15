@@ -103,25 +103,35 @@ export default function ContentEditDialog() {
     e: React.KeyboardEvent<
       HTMLTextAreaElement | HTMLInputElement | HTMLDivElement
     >,
+    name: "title" | "content",
   ) => {
-    // Add new line
-    if (e.shiftKey && e.key === "Enter") {
-      // add return so submit not fired
-      return;
-    }
+    switch (e.key) {
+      case "Enter":
+        // Add new line
+        if (e.shiftKey) {
+          // add return so submit not fired
+          return;
+        }
 
-    if (e.ctrlKey && e.key === "Enter") {
-      handleSubmit(e as any);
-      // add return so focus not change to next field
-      return;
-    }
+        if (e.ctrlKey) {
+          handleSubmit(e as any);
+        }
 
-    // Change Input focus to next field with "Enter"
-    if (e.key === "Enter") {
-      e.preventDefault();
-      // const form = (e.target as HTMLFormElement).form;
-      // const index = Array.prototype.indexOf.call(form, e.target);
-      // form.elements[index + 1].focus();
+        if (name === "content") {
+          e.preventDefault();
+          handleSubmit(e as any);
+        }
+
+        // Change Input focus to next field with "Enter"
+        else {
+          e.preventDefault();
+          const form = (e.target as HTMLFormElement).form;
+          const index = Array.prototype.indexOf.call(form, e.target);
+          form.elements[index + 1].focus();
+        }
+        break;
+      default:
+        return;
     }
   };
 
@@ -165,7 +175,9 @@ export default function ContentEditDialog() {
           margin="dense"
           value={state.title}
           onChange={handleChange}
-          onKeyPress={handleKeyPress}
+          onKeyPress={(e) => {
+            handleKeyPress(e, "title");
+          }}
           onFocus={(event) => {
             event.target.setAttribute("autocomplete", "off");
           }}
@@ -184,8 +196,7 @@ export default function ContentEditDialog() {
           rows={15}
           onChange={handleChange}
           onKeyPress={(e) => {
-            e.preventDefault();
-            handleSubmit(e as any);
+            handleKeyPress(e, "content");
           }}
         />
         {/* <TagInput
