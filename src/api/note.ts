@@ -22,6 +22,7 @@ export const createNoteAPI = <T, R>(data: T) =>
 
 export interface GetNotesFilter {
   userId: string;
+  favorite: boolean;
 }
 export const getNotesAPI = <R>(filter: Partial<GetNotesFilter>) =>
   axios.get<R>(`${endpoint}?${qs(filter)}`).then((res) => res.data);
