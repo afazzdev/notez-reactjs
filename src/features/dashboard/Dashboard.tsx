@@ -64,7 +64,10 @@ function Dashboard() {
   const getNotes = useCallback(() => {
     setGetNotesLoading(true);
     dispatch(
-      changeRouteThunk(filter, { userId, favorite: filter === "favorite" }),
+      changeRouteThunk(filter, {
+        userId,
+        ...(filter === "favorite" && { favorite: true }),
+      }),
     ).finally(() => {
       setGetNotesLoading(false);
     });
