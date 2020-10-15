@@ -9,7 +9,9 @@ import {
   DialogActions,
   DialogContent,
   CircularProgress,
+  IconButton,
 } from "@material-ui/core";
+import { Star, StarBorder } from "@material-ui/icons";
 
 import { AppDispatchType } from "../../app/store";
 import { RootState } from "../../app/root.reducer";
@@ -97,6 +99,24 @@ export default function ContentEditDialog() {
     }
   };
 
+  const EndAdornment = () => (
+    <IconButton
+      size="small"
+      onClick={() => {
+        setState((prev) => ({
+          ...prev,
+          favorite: !prev.favorite,
+        }));
+      }}
+    >
+      {state.favorite ? (
+        <Star style={{ fontSize: 24 }} />
+      ) : (
+        <StarBorder style={{ fontSize: 24 }} />
+      )}
+    </IconButton>
+  );
+
   return (
     <Dialog
       open={dialog}
@@ -122,6 +142,7 @@ export default function ContentEditDialog() {
           onFocus={(event) => {
             event.target.setAttribute("autocomplete", "off");
           }}
+          endAdornment={<EndAdornment />}
           style={{
             fontSize: "1.2rem",
             paddingBottom: "2rem",
@@ -137,7 +158,7 @@ export default function ContentEditDialog() {
           onChange={handleChange}
           onKeyPress={handleKeyPress}
         />
-        <TagInput
+        {/* <TagInput
           options={[
             {
               title: "sometitle",
@@ -152,7 +173,7 @@ export default function ContentEditDialog() {
               tags: values,
             });
           }}
-        />
+        /> */}
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose} color="primary">
