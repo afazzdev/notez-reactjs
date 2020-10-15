@@ -17,23 +17,42 @@ export interface ITag {
 }
 
 export interface INote {
-  id?: string;
-  image: string;
+  id: string;
   title: string;
   content: string;
-  tags: ITag[];
+  favorite: boolean;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+
+  // image: string;
+  // tags: ITag[];
 }
 
-export const initialState = {
-  notes: [] as INote[],
+export type NoteFilter = "notes" | "favorite";
+
+interface InitialState {
+  notes: INote[];
+  filter: NoteFilter;
+  dialog: boolean;
+  note: INote;
+}
+
+export const initialState: InitialState = {
+  notes: [],
+  filter: "notes",
   dialog: false,
   note: {
     id: "",
-    image: "",
     title: "",
     content: "",
-    tags: [],
-  } as INote,
+    favorite: false,
+    userId: "",
+    createdAt: "",
+    updatedAt: "",
+    // image: "",
+    // tags: [],
+  },
 };
 
 const notesSlice = createSlice({
@@ -61,8 +80,13 @@ const notesSlice = createSlice({
         // delete previous value
         state.notes.splice(index, 1);
       }
+
       // Assign new value
-      state.notes.unshift(payload);
+      if (state.filter === "favorite") {
+        state.notes = state.notes.filter((note) => note.favorite);
+      } else {
+        state.notes.unshift(payload);
+      }
 
       // Return value current active note to initial and close it
       state.note = initialState.note;
@@ -71,11 +95,19 @@ const notesSlice = createSlice({
     getNotes(state, { payload }) {
       state.notes = payload;
     },
+    changeRoute(state, { payload }) {
+      state.filter = payload;
+    },
   },
 });
 
 // Public actions
-export const { openDialog, closeDialog, editNote } = notesSlice.actions;
+export const {
+  openDialog,
+  closeDialog,
+  editNote,
+  changeRoute,
+} = notesSlice.actions;
 
 // Private actions
 const { getNotes, saveNote } = notesSlice.actions;
@@ -83,21 +115,21 @@ const { getNotes, saveNote } = notesSlice.actions;
 export default notesSlice.reducer;
 
 export const createNoteThunk = (
-  data: INote,
+  data: Partial<INote>,
 ): AppThunk<Promise<IResponseData<INote>>> => async (dispatch) => {
   // delete default id
   delete data.id;
-  const note = await createNoteAPI<INote, IResponseData<INote>>(data);
+  const note = await createNoteAPI<INote, IResponseData<INote>>(data as INote);
 
   dispatch(saveNote(note.data));
 
   return note;
 };
 
-export const getNotesThunk = ({
-  userId,
-}: GetNotesFilter): AppThunk<Promise<void>> => async (dispatch) => {
-  const notes = await getNotesAPI<IResponseData<INote[]>>({ userId });
+export const getNotesThunk = (
+  filter: Partial<GetNotesFilter>,
+): AppThunk<Promise<void>> => async (dispatch) => {
+  const notes = await getNotesAPI<IResponseData<INote[]>>(filter);
 
   dispatch(getNotes(notes.data));
 
@@ -115,4 +147,12 @@ export const editNoteThunk = (
   dispatch(saveNote(editedNote.data));
 
   return editedNote;
+};
+
+export const changeRouteThunk = (
+  route: NoteFilter,
+  filter: Partial<GetNotesFilter>,
+): AppThunk<Promise<void>> => async (dispatch) => {
+  dispatch(changeRoute(route));
+  dispatch(getNotesThunk(filter));
 };
